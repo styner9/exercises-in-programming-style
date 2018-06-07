@@ -2,14 +2,17 @@
 
 import sys, os, string
 
+basepath = os.path.dirname(__file__)
+
 # Utility for handling the intermediate 'secondary memory'
 def touchopen(filename, *args, **kwargs):
     try:
         os.remove(filename)
     except OSError:
         pass
-    open(filename, "a").close() # "touch" file
-    return open(filename, *args, **kwargs)
+    path = os.path.join(basepath, filename)
+    open(path, "a").close() # "touch" file
+    return open(path, *args, **kwargs)
 
 # The constrained memory should have no more than 1024 cells
 data = []
@@ -31,7 +34,7 @@ data = []
 # - identify words, increment corresponding counts in file
 
 # Load the list of stop words
-f = open('../stop_words.txt')
+f = open(os.path.join(basepath, '../stop_words.txt'))
 data = [f.read(1024).split(',')] # data[0] holds the stop words
 f.close()
 
@@ -45,8 +48,11 @@ data.append(0)     # data[7] is frequency
 
 # Open the secondary memory
 word_freqs = touchopen('word_freqs', 'rb+')
+
 # Open the input file
-f = open(sys.argv[1])
+inputfile = sys.argv[1] if len(sys.argv) > 1 else "../input.txt"
+f = open(os.path.join(basepath, inputfile))
+
 # Loop over input file's lines
 while True:
     data[1] = [f.readline()] 
